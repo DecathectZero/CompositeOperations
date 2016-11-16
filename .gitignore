@@ -43,6 +43,11 @@
 *.VC.db
 *.VC.opendb
 
+# Maps that are too big
+Highrise.umap
+Highrise_Vista.umap
+Sanctuary.umap
+
 # Precompiled Assets
 SourceArt/**/*.png
 SourceArt/**/*.tga

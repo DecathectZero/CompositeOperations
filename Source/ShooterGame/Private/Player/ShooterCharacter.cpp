@@ -60,7 +60,7 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	RunningSpeedModifier = 1.5f;
 	bWantsToRun = false;
 	bWantsToFire = false;
-	bIsThirdPerson = true;
+	bIsThirdPerson = false;
 	LowHealthPercentage = 0.5f;
 
 	BaseTurnRate = 45.f;

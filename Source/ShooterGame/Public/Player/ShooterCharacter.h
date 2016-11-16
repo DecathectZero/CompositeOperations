@@ -110,6 +110,9 @@ class AShooterCharacter : public ACharacter
 	/** [server + local] change running state */
 	void SetRunning(bool bNewRunning, bool bToggle);
 
+	/** <GB> [server + local] change third person state (server has to know that player is using third person) */
+	void SetThirdPerson(bool bNewThirdPerson);
+
 	//////////////////////////////////////////////////////////////////////////
 	// Animations
 
@@ -190,6 +193,15 @@ class AShooterCharacter : public ACharacter
 
 	/** player released run action */
 	void OnStopRunning();
+
+	/** player pressed 3rd person action */
+	void OnThirdPerson();
+
+	/** player toggled 3rd person action */
+	void OnThirdPersonToggle();
+
+	/** player released 3rd person action */
+	void OnFirstPerson();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Reading data
@@ -307,6 +319,10 @@ protected:
 
 	/** current firing state */
 	uint8 bWantsToFire : 1;
+
+	/** flag used to toggle third person camera view */
+	UPROPERTY(Transient, Replicated)
+	uint8 bIsThirdPerson;
 
 	/** when low health effects should start */
 	float LowHealthPercentage;
@@ -462,6 +478,10 @@ protected:
 	/** update targeting state */
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerSetRunning(bool bNewRunning, bool bToggle);
+
+	/** update first person state*/
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerSetThirdPerson(bool bNewThirdPerson);
 
 	/** Builds list of points to check for pausing replication for a connection*/
 	void BuildPauseReplicationCheckPoints(TArray<FVector>& RelevancyCheckPoints);

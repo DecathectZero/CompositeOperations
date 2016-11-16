@@ -60,6 +60,7 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	RunningSpeedModifier = 1.5f;
 	bWantsToRun = false;
 	bWantsToFire = false;
+	bIsThirdPerson = false;
 	LowHealthPercentage = 0.5f;
 
 	BaseTurnRate = 45.f;
@@ -184,6 +185,11 @@ void AShooterCharacter::UpdatePawnMeshes()
 
 	GetMesh()->MeshComponentUpdateFlag = bFirstPerson ? EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered : EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
 	GetMesh()->SetOwnerNoSee(bFirstPerson);
+
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->UpdateMeshes();
+	}
 }
 
 void AShooterCharacter::UpdateTeamColors(UMaterialInstanceDynamic* UseMID)
@@ -677,6 +683,7 @@ void AShooterCharacter::SetCurrentWeapon(AShooterWeapon* NewWeapon, AShooterWeap
 		NewWeapon->SetOwningPawn(this);	// Make sure weapon's MyPawn is pointing back to us. During replication, we can't guarantee APawn::CurrentWeapon will rep after AWeapon::MyPawn!
 
 		NewWeapon->OnEquip(LastWeapon);
+		NewWeapon->UpdateMeshes();
 	}
 }
 
@@ -798,6 +805,27 @@ void AShooterCharacter::UpdateRunSounds()
 	}
 }
 
+void AShooterCharacter::SetThirdPerson(bool bNewThirdPerson)
+{
+	bIsThirdPerson = bNewThirdPerson;
+	UpdatePawnMeshes();
+
+	if (Role < ROLE_Authority)
+	{
+		ServerSetThirdPerson(bNewThirdPerson);
+	}
+}
+
+bool AShooterCharacter::ServerSetThirdPerson_Validate(bool bNewThirdPerson)
+{
+	return true;
+}
+
+void AShooterCharacter::ServerSetThirdPerson_Implementation(bool bNewThirdPerson)
+{
+	SetThirdPerson(bNewThirdPerson);
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Animations
 
@@ -863,6 +891,10 @@ void AShooterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AShooterCharacter::OnStartRunning);
 	PlayerInputComponent->BindAction("RunToggle", IE_Pressed, this, &AShooterCharacter::OnStartRunningToggle);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AShooterCharacter::OnStopRunning);
+
+	InputComponent->BindAction("ThirdPerson", IE_Pressed, this, &AShooterCharacter::OnThirdPerson);
+	InputComponent->BindAction("ThirdPersonToggle", IE_Pressed, this, &AShooterCharacter::OnThirdPersonToggle);
+	InputComponent->BindAction("ThirdPerson", IE_Released, this, &AShooterCharacter::OnFirstPerson);
 }
 
 
@@ -1031,6 +1063,29 @@ bool AShooterCharacter::IsRunning() const
 	}
 
 	return (bWantsToRun || bWantsToRunToggled) && !GetVelocity().IsZero() && (GetVelocity().GetSafeNormal2D() | GetActorForwardVector()) > -0.1;
+}
+
+void AShooterCharacter::OnThirdPerson()
+{
+	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed())
+	{
+		SetThirdPerson(true);
+	}
+}
+ 
+void AShooterCharacter::OnThirdPersonToggle()
+{
+	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed())
+	{
+		SetThirdPerson(!bIsThirdPerson);
+	}
+}
+ 
+void AShooterCharacter::OnFirstPerson()
+{
+	SetThirdPerson(false);
 }
 
 void AShooterCharacter::Tick(float DeltaSeconds)
@@ -1245,7 +1300,7 @@ bool AShooterCharacter::IsFiring() const
 
 bool AShooterCharacter::IsFirstPerson() const
 {
-	return IsAlive() && Controller && Controller->IsLocalPlayerController();
+	return IsAlive() && Controller && Controller->IsLocalPlayerController() && !bIsThirdPerson;
 }
 
 int32 AShooterCharacter::GetMaxHealth() const

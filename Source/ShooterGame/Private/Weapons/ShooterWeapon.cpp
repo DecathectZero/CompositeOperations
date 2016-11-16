@@ -202,6 +202,16 @@ void AShooterWeapon::AttachMeshToPawn()
 	}
 }
 
+void AShooterWeapon::UpdateMeshes()
+{
+	if (MyPawn)
+	{
+		const bool bFirstPerson = MyPawn->IsFirstPerson();
+		Mesh1P->SetOwnerNoSee(!bFirstPerson);
+		Mesh3P->SetOwnerNoSee(bFirstPerson);
+	}
+}
+
 void AShooterWeapon::DetachMeshFromPawn()
 {
 	Mesh1P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);

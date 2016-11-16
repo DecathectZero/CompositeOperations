@@ -30,10 +30,10 @@ AShooterWeapon::AShooterWeapon(const FObjectInitializer& ObjectInitializer) : Su
 	Mesh3P->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
 	Mesh3P->SetupAttachment(Mesh1P);
 
-	Ironsights = ObjectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("Ironsights"));
-	Ironsights->SetupAttachment(Mesh3P);
-	Ironsights->bUsePawnControlRotation = false;
-	Ironsights->FieldOfView = 50.f;
+	//Ironsights = ObjectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("Ironsights"));
+	//Ironsights->SetupAttachment(Mesh3P);
+	//Ironsights->bUsePawnControlRotation = false;
+	//Ironsights->FieldOfView = 50.f;
 
 	bLoopedMuzzleFX = false;
 	bLoopedFireAnim = false;

@@ -811,15 +811,33 @@ void AShooterWeapon::SimulateWeaponFire()
 				AController* PlayerCon = MyPawn->GetController();				
 				if( PlayerCon != NULL )
 				{
-					Mesh1P->GetSocketLocation(MuzzleAttachPoint);
-					MuzzlePSC = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh1P, MuzzleAttachPoint);
-					MuzzlePSC->bOwnerNoSee = false;
-					MuzzlePSC->bOnlyOwnerSee = true;
 
+					const bool isFirstPerson = MyPawn->IsFirstPerson();
+
+					// <GB> In first person, this will be the Shooting player's effect
+					if (isFirstPerson)
+					{
+						Mesh1P->GetSocketLocation(MuzzleAttachPoint);
+						MuzzlePSC = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh1P, MuzzleAttachPoint);
+						MuzzlePSC->bOwnerNoSee = false;
+						MuzzlePSC->bOnlyOwnerSee = true;
+					}
+
+					// <GB> In third person, this will be the Other player's effect
+					else
+					{
+						Mesh3P->GetSocketLocation(MuzzleAttachPoint);
+						MuzzlePSC = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh3P, MuzzleAttachPoint);
+						MuzzlePSC->bOwnerNoSee = true;
+						MuzzlePSC->bOnlyOwnerSee = false;
+					}
+
+					// <GB> In first person, this will be the Other player's effect
+					// <GB> In third person, this will be the Shooting player's effect
 					Mesh3P->GetSocketLocation(MuzzleAttachPoint);
 					MuzzlePSCSecondary = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh3P, MuzzleAttachPoint);
-					MuzzlePSCSecondary->bOwnerNoSee = true;
-					MuzzlePSCSecondary->bOnlyOwnerSee = false;				
+					MuzzlePSCSecondary->bOwnerNoSee = isFirstPerson;
+					MuzzlePSCSecondary->bOnlyOwnerSee = !isFirstPerson;
 				}				
 			}
 			else

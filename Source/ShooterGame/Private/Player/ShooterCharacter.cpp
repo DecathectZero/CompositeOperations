@@ -974,12 +974,21 @@ void AShooterCharacter::OnStartTargeting()
 			SetRunning(false, false);
 		}
 		SetTargeting(true);
+		FViewTargetTransitionParams Params;
+		Params.BlendTime = 0.2f;
+		Params.bLockOutgoing = false;
+		MyPC->SetViewTarget(CurrentWeapon, Params);
 	}
 }
 
 void AShooterCharacter::OnStopTargeting()
 {
 	SetTargeting(false);
+	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
+	FViewTargetTransitionParams Params;
+	Params.BlendTime = 0.2f;
+	Params.bLockOutgoing = false;
+	MyPC->SetViewTarget(this, Params);
 }
 
 void AShooterCharacter::OnNextWeapon()

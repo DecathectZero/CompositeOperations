@@ -277,6 +277,9 @@ private:
 	/** weapon mesh: 3rd person view */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
 	USkeletalMeshComponent* Mesh3P;
+
+	UPROPERTY(VisibleDefaultsOnly, Category=Camera)
+	UCameraComponent* Ironsights;
 protected:
 
 	/** firing audio (bLoopedFireSound set) */
@@ -516,5 +519,7 @@ protected:
 	FORCEINLINE USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns Mesh3P subobject **/
 	FORCEINLINE USkeletalMeshComponent* GetMesh3P() const { return Mesh3P; }
+	/** Returns Camera subobject **/
+	FORCEINLINE UCameraComponent* GetMIronsights() const { return Ironsights; }
 };
 

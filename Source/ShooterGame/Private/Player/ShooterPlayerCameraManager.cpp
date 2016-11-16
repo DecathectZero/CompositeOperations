@@ -15,11 +15,6 @@ AShooterPlayerCameraManager::AShooterPlayerCameraManager(const FObjectInitialize
 void AShooterPlayerCameraManager::UpdateCamera(float DeltaTime)
 {
 	AShooterCharacter* MyPawn = PCOwner ? Cast<AShooterCharacter>(PCOwner->GetPawn()) : NULL;
-	if (MyPawn && MyPawn->IsAlive() && MyPawn->IsLocallyControlled())
-	{
-		const float TargetFOV = MyPawn->IsTargeting() ? TargetingFOV : NormalFOV;
-		DefaultFOV = FMath::FInterpTo(DefaultFOV, TargetFOV, DeltaTime, 20.0f);
-	}
 
 	Super::UpdateCamera(DeltaTime);
 

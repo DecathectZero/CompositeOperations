@@ -280,6 +280,9 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category=Camera)
 	UCameraComponent* Ironsights;
+
+	UPROPERTY()
+	USceneComponent* WeaponComponent;
 protected:
 
 	/** firing audio (bLoopedFireSound set) */

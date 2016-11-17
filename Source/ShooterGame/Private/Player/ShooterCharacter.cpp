@@ -32,7 +32,7 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 {
 	Mesh1P = ObjectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("PawnMesh1P"));
 	Mesh1P->SetupAttachment(GetCapsuleComponent());
-	Mesh1P->bOnlyOwnerSee = true;
+	Mesh1P->bOnlyOwnerSee = false;
 	Mesh1P->bOwnerNoSee = false;
 	Mesh1P->bCastDynamicShadow = false;
 	Mesh1P->bReceivesDecals = false;
@@ -184,9 +184,11 @@ void AShooterCharacter::UpdatePawnMeshes()
 
 	Mesh1P->MeshComponentUpdateFlag = !bFirstPerson ? EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered : EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
 	Mesh1P->SetOwnerNoSee(!bFirstPerson);
+	Mesh1P->SetVisibility(bFirstPerson);
 
 	GetMesh()->MeshComponentUpdateFlag = bFirstPerson ? EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered : EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
 	GetMesh()->SetOwnerNoSee(bFirstPerson);
+	GetMesh()->SetVisibility(!bFirstPerson);
 
 	if (CurrentWeapon)
 	{

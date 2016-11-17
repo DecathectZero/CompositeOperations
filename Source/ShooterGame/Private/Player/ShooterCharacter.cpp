@@ -180,6 +180,8 @@ void AShooterCharacter::UpdatePawnMeshes()
 {
 	bool const bFirstPerson = IsFirstPerson();
 
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, bFirstPerson ? "true" : "false");
+
 	Mesh1P->MeshComponentUpdateFlag = !bFirstPerson ? EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered : EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
 	Mesh1P->SetOwnerNoSee(!bFirstPerson);
 
@@ -1089,6 +1091,12 @@ void AShooterCharacter::OnThirdPersonToggle()
 	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
 	if (MyPC && MyPC->IsGameInputAllowed())
 	{
+		if (bIsThirdPerson) {
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("First Person Mode"));
+		}
+		else {
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Third Person Mode"));
+		}
 		SetThirdPerson(!bIsThirdPerson);
 	}
 }

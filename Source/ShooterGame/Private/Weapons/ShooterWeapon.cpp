@@ -28,9 +28,9 @@ AShooterWeapon::AShooterWeapon(const FObjectInitializer& ObjectInitializer) : Su
 	Mesh3P->SetCollisionObjectType(ECC_WorldDynamic);
 	Mesh3P->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh3P->SetCollisionResponseToAllChannels(ECR_Ignore);
-	Mesh3P->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Block);
-	Mesh3P->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	Mesh3P->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
+	//Mesh3P->SetCollisionResponseToChannel(COLLISION_WEAPON, ECR_Block);
+	//Mesh3P->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	//Mesh3P->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
 	Mesh3P->SetupAttachment(WeaponComponent);
 
 	//Ironsights = ObjectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("Ironsights"));

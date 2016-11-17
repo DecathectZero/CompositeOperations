@@ -1076,6 +1076,7 @@ bool AShooterCharacter::IsRunning() const
 
 void AShooterCharacter::OnThirdPerson()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("Third Person Mode"));
 	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
 	if (MyPC && MyPC->IsGameInputAllowed())
 	{
@@ -1094,6 +1095,7 @@ void AShooterCharacter::OnThirdPersonToggle()
  
 void AShooterCharacter::OnFirstPerson()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, TEXT("First Person Mode"));
 	SetThirdPerson(false);
 }
 

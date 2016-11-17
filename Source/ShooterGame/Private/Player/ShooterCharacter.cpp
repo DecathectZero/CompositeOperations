@@ -968,18 +968,20 @@ void AShooterCharacter::OnStopFire()
 
 void AShooterCharacter::OnStartTargeting()
 {
-	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
-	if (MyPC && MyPC->IsGameInputAllowed())
-	{
-		if (IsRunning())
+	if (!Onreload) {
+		AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
+		if (MyPC && MyPC->IsGameInputAllowed())
 		{
-			SetRunning(false, false);
+			if (IsRunning())
+			{
+				SetRunning(false, false);
+			}
+			SetTargeting(true);
+			FViewTargetTransitionParams Params;
+			Params.BlendTime = 0.2f;
+			Params.bLockOutgoing = false;
+			MyPC->SetViewTarget(CurrentWeapon, Params);
 		}
-		SetTargeting(true);
-		FViewTargetTransitionParams Params;
-		Params.BlendTime = 0.2f;
-		Params.bLockOutgoing = false;
-		MyPC->SetViewTarget(CurrentWeapon, Params);
 	}
 }
 
@@ -1041,6 +1043,7 @@ void AShooterCharacter::OnStartRunning()
 		if (IsTargeting())
 		{
 			SetTargeting(false);
+			OnStopTargeting();
 		}
 		StopWeaponFire();
 		SetRunning(true, false);

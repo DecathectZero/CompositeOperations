@@ -180,8 +180,6 @@ void AShooterCharacter::UpdatePawnMeshes()
 {
 	bool const bFirstPerson = IsFirstPerson();
 
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, bFirstPerson ? "true" : "false");
-
 	Mesh1P->MeshComponentUpdateFlag = !bFirstPerson ? EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered : EMeshComponentUpdateFlag::AlwaysTickPoseAndRefreshBones;
 	Mesh1P->SetOwnerNoSee(!bFirstPerson);
 	Mesh1P->SetVisibility(bFirstPerson);

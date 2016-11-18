@@ -274,8 +274,6 @@ void AShooterWeapon::StartReload(bool bFromReplication)
 		bPendingReload = true;
 		DetermineWeaponState();
 
-		MyPawn->OnStopTargeting();
-
 		float AnimDuration = PlayWeaponAnimation(ReloadAnim);		
 		if (AnimDuration <= 0.0f)
 		{
@@ -385,12 +383,12 @@ void AShooterWeapon::GiveAmmo(int AddAmount)
 	}
 	
 	// start reload if clip was empty
-	if (GetCurrentAmmoInClip() <= 0 &&
-		CanReload() &&
-		MyPawn->GetWeapon() == this)
-	{
-		ClientStartReload();
-	}
+	//if (GetCurrentAmmoInClip() <= 0 &&
+	//	CanReload() &&
+	//	MyPawn->GetWeapon() == this)
+	//{
+	//	ClientStartReload();
+	//}
 }
 
 void AShooterWeapon::UseAmmo()
@@ -446,10 +444,10 @@ void AShooterWeapon::HandleFiring()
 			BurstCounter++;
 		}
 	}
-	else if (CanReload())
-	{
-		StartReload();
-	}
+	//else if (CanReload())
+	//{
+	//	StartReload();
+	//}
 	else if (MyPawn && MyPawn->IsLocallyControlled())
 	{
 		if (GetCurrentAmmo() == 0 && !bRefiring)
@@ -479,10 +477,10 @@ void AShooterWeapon::HandleFiring()
 		}
 
 		// reload after firing last round
-		if (CurrentAmmoInClip <= 0 && CanReload())
-		{
-			StartReload();
-		}
+		//if (CurrentAmmoInClip <= 0 && CanReload())
+		//{
+		//	StartReload();
+		//}
 
 		// setup refire timer
 		bRefiring = (CurrentState == EWeaponState::Firing && WeaponConfig.TimeBetweenShots > 0.0f);

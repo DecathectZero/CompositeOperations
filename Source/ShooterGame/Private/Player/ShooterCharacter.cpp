@@ -1030,6 +1030,7 @@ void AShooterCharacter::OnReload()
 	{
 		if (CurrentWeapon)
 		{
+			OnStopTargeting();
 			CurrentWeapon->StartReload();
 		}
 	}

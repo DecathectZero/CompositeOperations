@@ -968,7 +968,7 @@ void AShooterCharacter::OnStopFire()
 
 void AShooterCharacter::OnStartTargeting()
 {
-	if (!Onreload) {
+	if (!(CurrentWeapon->IsReloading())) {
 		AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
 		if (MyPC && MyPC->IsGameInputAllowed())
 		{

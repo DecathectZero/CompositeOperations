@@ -166,6 +166,9 @@ class AShooterWeapon : public AActor
 	/** check if weapon can be reloaded */
 	bool CanReload() const;
 
+	/** check if weapon is in the process of being reloaded */
+	bool IsReloading();
+
 
 	//////////////////////////////////////////////////////////////////////////
 	// Reading data

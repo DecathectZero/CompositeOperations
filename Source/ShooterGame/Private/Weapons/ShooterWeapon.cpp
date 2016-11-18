@@ -274,6 +274,8 @@ void AShooterWeapon::StartReload(bool bFromReplication)
 		bPendingReload = true;
 		DetermineWeaponState();
 
+		MyPawn->OnStopTargeting();
+
 		float AnimDuration = PlayWeaponAnimation(ReloadAnim);		
 		if (AnimDuration <= 0.0f)
 		{
@@ -549,6 +551,11 @@ void AShooterWeapon::SetWeaponState(EWeaponState::Type NewState)
 	{
 		OnBurstStarted();
 	}
+}
+
+bool AShooterWeapon::IsReloading()
+{
+	return (GetCurrentState() == EWeaponState::Reloading);
 }
 
 void AShooterWeapon::DetermineWeaponState()

@@ -274,6 +274,8 @@ void AShooterWeapon::StartReload(bool bFromReplication)
 		bPendingReload = true;
 		DetermineWeaponState();
 
+		MyPawn->OnStopTargeting();
+
 		float AnimDuration = PlayWeaponAnimation(ReloadAnim);		
 		if (AnimDuration <= 0.0f)
 		{

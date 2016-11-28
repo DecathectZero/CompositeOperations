@@ -110,6 +110,10 @@ class AShooterCharacter : public ACharacter
 	/** [server + local] change running state */
 	void SetRunning(bool bNewRunning, bool bToggle);
 
+	void SetCrouch(bool crouching);
+
+	void SetControlYAxis(float pitch);
+
 	/** <GB> [server + local] change third person state (server has to know that player is using third person) */
 	void SetThirdPerson(bool bNewThirdPerson);
 
@@ -170,6 +174,9 @@ class AShooterCharacter : public ACharacter
 	/** player released targeting action */
 	void OnStopTargeting();
 
+	/** Instantly stop targeting action w no transition */
+	void InstantStopTargeting();
+
 	/** player pressed next weapon action */
 	void OnNextWeapon();
 
@@ -187,6 +194,11 @@ class AShooterCharacter : public ACharacter
 
 	/** player pressed run action */
 	void OnStartRunning();
+
+	/** player pressed crouch action */
+	void OnStartCrouch();
+
+	void OnStopCrouch();
 
 	/** player pressed toggled run action */
 	void OnStartRunningToggle();
@@ -242,9 +254,16 @@ class AShooterCharacter : public ACharacter
 	UFUNCTION(BlueprintCallable, Category = Pawn)
 	float GetRunningSpeedModifier() const;
 
+	UFUNCTION(BlueprintCallable, Category = Pawn)
+	float GetControlYAxis() const;
+
 	/** get running state */
 	UFUNCTION(BlueprintCallable, Category = Pawn)
 	bool IsRunning() const;
+
+	/** get running state */
+	UFUNCTION(BlueprintCallable, Category = Pawn)
+	bool IsCrouching() const;
 
 	/** get camera view type */
 	UFUNCTION(BlueprintCallable, Category = Mesh)
@@ -310,9 +329,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Pawn)
 	float RunningSpeedModifier;
 
+	UPROPERTY(Transient, Replicated)
+	float bControlYAxis;
+
 	/** current running state */
 	UPROPERTY(Transient, Replicated)
 	uint8 bWantsToRun : 1;
+
+	UPROPERTY(Transient, Replicated)
+	uint8 bCrouching : 1;
 
 	/** from gamepad running is toggled */
 	uint8 bWantsToRunToggled : 1;
@@ -478,6 +503,14 @@ protected:
 	/** update targeting state */
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerSetRunning(bool bNewRunning, bool bToggle);
+
+	/** update targeting state */
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerSetCrouch(bool crouching);
+
+	/** update targeting state */
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerSetControlYAxis(float pitch);
 
 	/** update first person state*/
 	UFUNCTION(reliable, server, WithValidation)

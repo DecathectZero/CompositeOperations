@@ -48,14 +48,24 @@ struct FWeaponData
 	UPROPERTY(EditDefaultsOnly, Category=WeaponStat)
 	float NoAnimReloadDuration;
 
+	/** IronsightPitchAdjst */
+	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	float ADSpitch;
+
+	/** IronsightYawAdjust */
+	UPROPERTY(EditDefaultsOnly, Category = WeaponStat)
+	float ADSyaw;
+
 	/** defaults */
 	FWeaponData()
 	{
 		bInfiniteAmmo = false;
 		bInfiniteClip = false;
-		MaxAmmo = 100;
-		AmmoPerClip = 20;
+		MaxAmmo = 120;
+		AmmoPerClip = 30;
 		InitialClips = 4;
+		ADSpitch = 0;
+		ADSyaw = 0;
 		TimeBetweenShots = 0.2f;
 		NoAnimReloadDuration = 1.0f;
 	}
@@ -188,6 +198,10 @@ class AShooterWeapon : public AActor
 	/** get max ammo amount */
 	int32 GetMaxAmmo() const;
 
+	float GetADSpitch() const;
+
+	float GetADSyaw() const;
+
 	/** get weapon mesh (needs pawn owner to determine variant) */
 	USkeletalMeshComponent* GetWeaponMesh() const;
 
@@ -276,6 +290,10 @@ private:
 	/** weapon mesh: 1st person view */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
 	USkeletalMeshComponent* Mesh1P;
+
+	/** weapon mesh: 1st person view */
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	USkeletalMeshComponent* FuckingIronsights;
 
 	/** weapon mesh: 3rd person view */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)

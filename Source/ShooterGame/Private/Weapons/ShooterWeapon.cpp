@@ -15,7 +15,7 @@ AShooterWeapon::AShooterWeapon(const FObjectInitializer& ObjectInitializer) : Su
 	Mesh1P = ObjectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("WeaponMesh1P"));
 	Mesh1P->MeshComponentUpdateFlag = EMeshComponentUpdateFlag::OnlyTickPoseWhenRendered;
 	Mesh1P->bReceivesDecals = false;
-	Mesh1P->CastShadow = true;
+	Mesh1P->CastShadow = false;
 	Mesh1P->SetCollisionObjectType(ECC_WorldDynamic);
 	Mesh1P->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh1P->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -34,10 +34,13 @@ AShooterWeapon::AShooterWeapon(const FObjectInitializer& ObjectInitializer) : Su
 	Mesh3P->SetCollisionResponseToChannel(COLLISION_PROJECTILE, ECR_Block);
 	Mesh3P->SetupAttachment(WeaponComponent);
 
-	//Ironsights = ObjectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("Ironsights"));
-	//Ironsights->SetupAttachment(Mesh3P);
-	//Ironsights->bUsePawnControlRotation = false;
-	//Ironsights->FieldOfView = 50.f;
+	FuckingIronsights = Mesh3P = ObjectInitializer.CreateDefaultSubobject<USkeletalMeshComponent>(this, TEXT("FuckingIronsights"));
+	FuckingIronsights->SetupAttachment(Mesh1P);
+
+	Ironsights = ObjectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("Ironsights"));
+	Ironsights->SetupAttachment(FuckingIronsights);
+	Ironsights->bUsePawnControlRotation = false;
+	Ironsights->FieldOfView = 50.f;
 
 	bLoopedMuzzleFX = false;
 	bLoopedFireAnim = false;
@@ -982,6 +985,16 @@ int32 AShooterWeapon::GetAmmoPerClip() const
 int32 AShooterWeapon::GetMaxAmmo() const
 {
 	return WeaponConfig.MaxAmmo;
+}
+
+float AShooterWeapon::GetADSpitch() const
+{
+	return WeaponConfig.ADSpitch;
+}
+
+float AShooterWeapon::GetADSyaw() const
+{
+	return WeaponConfig.ADSyaw;
 }
 
 bool AShooterWeapon::HasInfiniteAmmo() const

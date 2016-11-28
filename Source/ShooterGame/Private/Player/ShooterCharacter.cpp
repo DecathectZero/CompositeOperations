@@ -59,9 +59,11 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	bIsTargeting = false;
 	RunningSpeedModifier = 1.5f;
 	bWantsToRun = false;
+	bCrouching = false;
 	bWantsToFire = false;
 	bIsThirdPerson = false;
 	LowHealthPercentage = 0.5f;
+	bControlYAxis = 0;
 
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
@@ -634,6 +636,9 @@ void AShooterCharacter::EquipWeapon(AShooterWeapon* Weapon)
 	{
 		if (Role == ROLE_Authority)
 		{
+			if(bIsTargeting){
+				InstantStopTargeting();
+			}
 			SetCurrentWeapon(Weapon, CurrentWeapon);
 		}
 		else
@@ -766,6 +771,17 @@ void AShooterCharacter::SetRunning(bool bNewRunning, bool bToggle)
 	}
 }
 
+void AShooterCharacter::SetCrouch(bool crouching)
+{
+	bCrouching = crouching;
+
+	if (Role < ROLE_Authority)
+	{
+		ServerSetCrouch(crouching);
+	}
+}
+
+
 bool AShooterCharacter::ServerSetRunning_Validate(bool bNewRunning, bool bToggle)
 {
 	return true;
@@ -774,6 +790,16 @@ bool AShooterCharacter::ServerSetRunning_Validate(bool bNewRunning, bool bToggle
 void AShooterCharacter::ServerSetRunning_Implementation(bool bNewRunning, bool bToggle)
 {
 	SetRunning(bNewRunning, bToggle);
+}
+
+bool AShooterCharacter::ServerSetCrouch_Validate(bool crouching)
+{
+	return true;
+}
+
+void AShooterCharacter::ServerSetCrouch_Implementation(bool crouching)
+{
+	SetCrouch(crouching);
 }
 
 void AShooterCharacter::UpdateRunSounds()
@@ -894,6 +920,9 @@ void AShooterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("RunToggle", IE_Pressed, this, &AShooterCharacter::OnStartRunningToggle);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AShooterCharacter::OnStopRunning);
 
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AShooterCharacter::OnStartCrouch);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AShooterCharacter::OnStopCrouch);
+
 	InputComponent->BindAction("ThirdPerson", IE_Pressed, this, &AShooterCharacter::OnThirdPerson);
 	InputComponent->BindAction("ThirdPersonToggle", IE_Pressed, this, &AShooterCharacter::OnThirdPersonToggle);
 	InputComponent->BindAction("ThirdPerson", IE_Released, this, &AShooterCharacter::OnFirstPerson);
@@ -916,6 +945,9 @@ void AShooterCharacter::MoveRight(float Val)
 {
 	if (Val != 0.f)
 	{
+		if (IsRunning()) {
+			Val = Val * 0.5f;
+		}
 		const FQuat Rotation = GetActorQuat();
 		const FVector Direction = FQuatRotationMatrix(Rotation).GetScaledAxis(EAxis::Y);
 		AddMovementInput(Direction, Val);
@@ -946,6 +978,29 @@ void AShooterCharacter::LookUpAtRate(float Val)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Val * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	SetControlYAxis(GetControlRotation().Pitch);
+}
+
+void AShooterCharacter::SetControlYAxis(float pitch) {
+	bControlYAxis = pitch;
+	if (Role < ROLE_Authority)
+	{
+		ServerSetControlYAxis(pitch);
+	}
+}
+
+bool AShooterCharacter::ServerSetControlYAxis_Validate(float pitch)
+{
+	return true;
+}
+
+void AShooterCharacter::ServerSetControlYAxis_Implementation(float pitch)
+{
+	SetControlYAxis(pitch);
+}
+
+float AShooterCharacter::GetControlYAxis() const {
+	return bControlYAxis;
 }
 
 void AShooterCharacter::OnStartFire()
@@ -977,6 +1032,8 @@ void AShooterCharacter::OnStartTargeting()
 				SetRunning(false, false);
 			}
 			SetTargeting(true);
+			AddControllerYawInput(CurrentWeapon->GetADSpitch() * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+			AddControllerPitchInput(CurrentWeapon->GetADSyaw() * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 			FViewTargetTransitionParams Params;
 			Params.BlendTime = 0.2f;
 			Params.bLockOutgoing = false;
@@ -987,12 +1044,28 @@ void AShooterCharacter::OnStartTargeting()
 
 void AShooterCharacter::OnStopTargeting()
 {
-	SetTargeting(false);
-	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
-	FViewTargetTransitionParams Params;
-	Params.BlendTime = 0.2f;
-	Params.bLockOutgoing = false;
-	MyPC->SetViewTarget(this, Params);
+	if (bIsTargeting) {
+		SetTargeting(false);
+		AddControllerYawInput(CurrentWeapon->GetADSpitch() * -1.0f * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+		AddControllerPitchInput(CurrentWeapon->GetADSyaw() * -1.0f * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+		AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
+		FViewTargetTransitionParams Params;
+		Params.BlendTime = 0.2f;
+		Params.bLockOutgoing = false;
+		MyPC->SetViewTarget(this, Params);
+	}
+}
+
+void AShooterCharacter::InstantStopTargeting()
+{
+	if (bIsTargeting) {
+		SetTargeting(false);
+		AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
+		FViewTargetTransitionParams Params;
+		Params.BlendTime = 0;
+		Params.bLockOutgoing = false;
+		MyPC->SetViewTarget(this, Params);
+	}
 }
 
 void AShooterCharacter::OnNextWeapon()
@@ -1050,6 +1123,27 @@ void AShooterCharacter::OnStartRunning()
 	}
 }
 
+void AShooterCharacter::OnStartCrouch()
+{
+	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed())
+	{
+		if (IsRunning()) {
+			SetRunning(false, false);
+		}
+		SetCrouch(true);
+	}
+}
+
+void AShooterCharacter::OnStopCrouch()
+{
+	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed())
+	{
+		SetCrouch(false);
+	}
+}
+
 void AShooterCharacter::OnStartRunningToggle()
 {
 	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
@@ -1077,6 +1171,15 @@ bool AShooterCharacter::IsRunning() const
 	}
 
 	return (bWantsToRun || bWantsToRunToggled) && !GetVelocity().IsZero() && (GetVelocity().GetSafeNormal2D() | GetActorForwardVector()) > -0.1;
+}
+
+bool AShooterCharacter::IsCrouching() const
+{
+	if (!GetCharacterMovement())
+	{
+		return false;
+	}
+	return bCrouching;
 }
 
 void AShooterCharacter::OnThirdPerson()
@@ -1224,7 +1327,9 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &
 
 	// everyone except local owner: flag change is locally instigated
 	DOREPLIFETIME_CONDITION(AShooterCharacter, bIsTargeting, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, bCrouching, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, bWantsToRun, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, bControlYAxis, COND_SkipOwner);
 
 	DOREPLIFETIME_CONDITION(AShooterCharacter, LastTakeHitInfo, COND_Custom);
 

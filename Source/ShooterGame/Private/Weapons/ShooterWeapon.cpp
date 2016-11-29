@@ -40,7 +40,7 @@ AShooterWeapon::AShooterWeapon(const FObjectInitializer& ObjectInitializer) : Su
 	Ironsights = ObjectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("Ironsights"));
 	Ironsights->SetupAttachment(FuckingIronsights);
 	Ironsights->bUsePawnControlRotation = false;
-	Ironsights->FieldOfView = 50.f;
+	Ironsights->FieldOfView = 90.f;
 
 	bLoopedMuzzleFX = false;
 	bLoopedFireAnim = false;

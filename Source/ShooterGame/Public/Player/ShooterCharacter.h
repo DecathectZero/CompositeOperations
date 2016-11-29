@@ -198,6 +198,8 @@ class AShooterCharacter : public ACharacter
 	/** player pressed crouch action */
 	void OnStartCrouch();
 
+	void OnToggleCrouch();
+
 	void OnStopCrouch();
 
 	/** player pressed toggled run action */
@@ -348,6 +350,9 @@ protected:
 	/** flag used to toggle third person camera view */
 	UPROPERTY(Transient, Replicated)
 	uint8 bIsThirdPerson;
+
+	UPROPERTY(EditDefaultsOnly, Category = Pawn)
+	float WalkSpeedModifier;
 
 	/** when low health effects should start */
 	float LowHealthPercentage;

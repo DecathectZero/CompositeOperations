@@ -58,6 +58,7 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	TargetingSpeedModifier = 0.5f;
 	bIsTargeting = false;
 	RunningSpeedModifier = 1.5f;
+	WalkSpeedModifier = 0.5f;
 	bWantsToRun = false;
 	bCrouching = false;
 	bWantsToFire = false;
@@ -913,15 +914,14 @@ void AShooterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AShooterCharacter::OnReload);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AShooterCharacter::OnStartJump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AShooterCharacter::OnStopJump);
+	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AShooterCharacter::OnStartJump);
+	//PlayerInputComponent->BindAction("Jump", IE_Released, this, &AShooterCharacter::OnStopJump);
 
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AShooterCharacter::OnStartRunning);
 	PlayerInputComponent->BindAction("RunToggle", IE_Pressed, this, &AShooterCharacter::OnStartRunningToggle);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AShooterCharacter::OnStopRunning);
 
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AShooterCharacter::OnStartCrouch);
-	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AShooterCharacter::OnStopCrouch);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AShooterCharacter::OnToggleCrouch);
 
 	InputComponent->BindAction("ThirdPerson", IE_Pressed, this, &AShooterCharacter::OnThirdPerson);
 	InputComponent->BindAction("ThirdPersonToggle", IE_Pressed, this, &AShooterCharacter::OnThirdPersonToggle);
@@ -937,7 +937,7 @@ void AShooterCharacter::MoveForward(float Val)
 		const bool bLimitRotation = (GetCharacterMovement()->IsMovingOnGround() || GetCharacterMovement()->IsFalling());
 		const FRotator Rotation = bLimitRotation ? GetActorRotation() : Controller->GetControlRotation();
 		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
-		AddMovementInput(Direction, Val);
+		AddMovementInput(Direction, Val*WalkSpeedModifier);
 	}
 }
 
@@ -950,7 +950,7 @@ void AShooterCharacter::MoveRight(float Val)
 		}
 		const FQuat Rotation = GetActorQuat();
 		const FVector Direction = FQuatRotationMatrix(Rotation).GetScaledAxis(EAxis::Y);
-		AddMovementInput(Direction, Val);
+		AddMovementInput(Direction, Val*WalkSpeedModifier);
 	}
 }
 
@@ -1132,6 +1132,18 @@ void AShooterCharacter::OnStartCrouch()
 			SetRunning(false, false);
 		}
 		SetCrouch(true);
+	}
+}
+
+void AShooterCharacter::OnToggleCrouch()
+{
+	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed())
+	{
+		if (IsRunning()) {
+			SetRunning(false, false);
+		}
+		SetCrouch(!IsCrouching());
 	}
 }
 

@@ -59,6 +59,7 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	bIsTargeting = false;
 	RunningSpeedModifier = 1.5f;
 	WalkSpeedModifier = 0.5f;
+	CrouchSpeedModifier = 0.4f;
 	bWantsToRun = false;
 	bCrouching = false;
 	bWantsToFire = false;
@@ -937,7 +938,7 @@ void AShooterCharacter::MoveForward(float Val)
 		const bool bLimitRotation = (GetCharacterMovement()->IsMovingOnGround() || GetCharacterMovement()->IsFalling());
 		const FRotator Rotation = bLimitRotation ? GetActorRotation() : Controller->GetControlRotation();
 		const FVector Direction = FRotationMatrix(Rotation).GetScaledAxis(EAxis::X);
-		AddMovementInput(Direction, Val*WalkSpeedModifier);
+		AddMovementInput(Direction, Val);
 	}
 }
 
@@ -950,7 +951,7 @@ void AShooterCharacter::MoveRight(float Val)
 		}
 		const FQuat Rotation = GetActorQuat();
 		const FVector Direction = FQuatRotationMatrix(Rotation).GetScaledAxis(EAxis::Y);
-		AddMovementInput(Direction, Val*WalkSpeedModifier);
+		AddMovementInput(Direction, Val);
 	}
 }
 
@@ -1117,6 +1118,9 @@ void AShooterCharacter::OnStartRunning()
 		{
 			SetTargeting(false);
 			OnStopTargeting();
+		}
+		if (IsCrouching()) {
+			SetCrouch(false);
 		}
 		StopWeaponFire();
 		SetRunning(true, false);
@@ -1430,6 +1434,16 @@ bool AShooterCharacter::IsTargeting() const
 float AShooterCharacter::GetRunningSpeedModifier() const
 {
 	return RunningSpeedModifier;
+}
+
+float AShooterCharacter::GetWalkSpeedModifier() const
+{
+	return WalkSpeedModifier;
+}
+
+float AShooterCharacter::GetCrouchSpeedModifier() const
+{
+	return CrouchSpeedModifier;
 }
 
 bool AShooterCharacter::IsFiring() const

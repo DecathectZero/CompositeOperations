@@ -257,6 +257,12 @@ class AShooterCharacter : public ACharacter
 	float GetRunningSpeedModifier() const;
 
 	UFUNCTION(BlueprintCallable, Category = Pawn)
+	float GetWalkSpeedModifier() const;
+
+	UFUNCTION(BlueprintCallable, Category = Pawn)
+	float GetCrouchSpeedModifier() const;
+
+	UFUNCTION(BlueprintCallable, Category = Pawn)
 	float GetControlYAxis() const;
 
 	/** get running state */
@@ -353,6 +359,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Pawn)
 	float WalkSpeedModifier;
+
+	UPROPERTY(EditDefaultsOnly, Category = Pawn)
+	float CrouchSpeedModifier;
 
 	/** when low health effects should start */
 	float LowHealthPercentage;

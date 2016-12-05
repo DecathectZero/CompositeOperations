@@ -22,10 +22,14 @@ float UShooterCharacterMovement::GetMaxSpeed() const
 		if (ShooterCharacterOwner->IsTargeting())
 		{
 			MaxSpeed *= ShooterCharacterOwner->GetTargetingSpeedModifier();
-		}
-		if (ShooterCharacterOwner->IsRunning())
+		}else if (ShooterCharacterOwner->IsRunning())
 		{
 			MaxSpeed *= ShooterCharacterOwner->GetRunningSpeedModifier();
+		}
+		else if (ShooterCharacterOwner->IsCrouching()) {
+			MaxSpeed *= ShooterCharacterOwner->GetCrouchSpeedModifier();
+		}else {
+			MaxSpeed *= ShooterCharacterOwner->GetWalkSpeedModifier();
 		}
 	}
 

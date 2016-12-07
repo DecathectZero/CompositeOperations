@@ -62,6 +62,7 @@ AShooterCharacter::AShooterCharacter(const FObjectInitializer& ObjectInitializer
 	CrouchSpeedModifier = 0.4f;
 	bWantsToRun = false;
 	bCrouching = false;
+	lean = 0;
 	bWantsToFire = false;
 	bIsThirdPerson = false;
 	LowHealthPercentage = 0.5f;
@@ -783,6 +784,16 @@ void AShooterCharacter::SetCrouch(bool crouching)
 	}
 }
 
+void AShooterCharacter::SetLean(int newlean)
+{
+	lean = newlean;
+
+	if (Role < ROLE_Authority)
+	{
+		ServerSetLean(newlean);
+	}
+}
+
 
 bool AShooterCharacter::ServerSetRunning_Validate(bool bNewRunning, bool bToggle)
 {
@@ -802,6 +813,16 @@ bool AShooterCharacter::ServerSetCrouch_Validate(bool crouching)
 void AShooterCharacter::ServerSetCrouch_Implementation(bool crouching)
 {
 	SetCrouch(crouching);
+}
+
+bool AShooterCharacter::ServerSetLean_Validate(int newlean)
+{
+	return true;
+}
+
+void AShooterCharacter::ServerSetLean_Implementation(int newlean)
+{
+	SetLean(newlean);
 }
 
 void AShooterCharacter::UpdateRunSounds()
@@ -923,6 +944,9 @@ void AShooterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AShooterCharacter::OnStopRunning);
 
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AShooterCharacter::OnToggleCrouch);
+
+	PlayerInputComponent->BindAction("LeanRight", IE_Pressed, this, &AShooterCharacter::OnToggleLeanRight);
+	PlayerInputComponent->BindAction("LeanLeft", IE_Pressed, this, &AShooterCharacter::OnToggleLeanLeft);
 
 	InputComponent->BindAction("ThirdPerson", IE_Pressed, this, &AShooterCharacter::OnThirdPerson);
 	InputComponent->BindAction("ThirdPersonToggle", IE_Pressed, this, &AShooterCharacter::OnThirdPersonToggle);
@@ -1151,6 +1175,34 @@ void AShooterCharacter::OnToggleCrouch()
 	}
 }
 
+void AShooterCharacter::OnToggleLeanLeft()
+{
+	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed() && !IsRunning())
+	{
+		if (GetLean() == 1) {
+			SetLean(0);
+		}
+		else {
+			SetLean(1);
+		}
+	}
+}
+
+void AShooterCharacter::OnToggleLeanRight()
+{
+	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
+	if (MyPC && MyPC->IsGameInputAllowed() && !IsRunning())
+	{
+		if (GetLean() == -1) {
+			SetLean(0);
+		}
+		else {
+			SetLean(-1);
+		}
+	}
+}
+
 void AShooterCharacter::OnStopCrouch()
 {
 	AShooterPlayerController* MyPC = Cast<AShooterPlayerController>(Controller);
@@ -1197,6 +1249,16 @@ bool AShooterCharacter::IsCrouching() const
 	}
 	return bCrouching;
 }
+
+int AShooterCharacter::GetLean() const
+{
+	if (!GetCharacterMovement())
+	{
+		return 1;
+	}
+	return lean;
+}
+
 
 void AShooterCharacter::OnThirdPerson()
 {
@@ -1346,6 +1408,7 @@ void AShooterCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &
 	DOREPLIFETIME_CONDITION(AShooterCharacter, bCrouching, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, bWantsToRun, COND_SkipOwner);
 	DOREPLIFETIME_CONDITION(AShooterCharacter, bControlYAxis, COND_SkipOwner);
+	DOREPLIFETIME_CONDITION(AShooterCharacter, lean, COND_SkipOwner);
 
 	DOREPLIFETIME_CONDITION(AShooterCharacter, LastTakeHitInfo, COND_Custom);
 

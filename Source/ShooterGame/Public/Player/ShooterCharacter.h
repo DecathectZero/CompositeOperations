@@ -112,6 +112,8 @@ class AShooterCharacter : public ACharacter
 
 	void SetCrouch(bool crouching);
 
+	void SetLean(int newlean);
+
 	void SetControlYAxis(float pitch);
 
 	/** <GB> [server + local] change third person state (server has to know that player is using third person) */
@@ -202,6 +204,10 @@ class AShooterCharacter : public ACharacter
 
 	void OnStopCrouch();
 
+	void OnToggleLeanRight();
+
+	void OnToggleLeanLeft();
+
 	/** player pressed toggled run action */
 	void OnStartRunningToggle();
 
@@ -272,6 +278,9 @@ class AShooterCharacter : public ACharacter
 	/** get running state */
 	UFUNCTION(BlueprintCallable, Category = Pawn)
 	bool IsCrouching() const;
+
+	UFUNCTION(BlueprintCallable, Category = Pawn)
+	int GetLean() const;
 
 	/** get camera view type */
 	UFUNCTION(BlueprintCallable, Category = Mesh)
@@ -346,6 +355,10 @@ protected:
 
 	UPROPERTY(Transient, Replicated)
 	uint8 bCrouching : 1;
+
+	/* Lean mechanics*/
+	UPROPERTY(Transient, Replicated)
+	int8 lean;
 
 	/** from gamepad running is toggled */
 	uint8 bWantsToRunToggled : 1;
@@ -521,6 +534,10 @@ protected:
 	/** update targeting state */
 	UFUNCTION(reliable, server, WithValidation)
 	void ServerSetCrouch(bool crouching);
+
+	/** update targeting state */
+	UFUNCTION(reliable, server, WithValidation)
+	void ServerSetLean(int newlean);
 
 	/** update targeting state */
 	UFUNCTION(reliable, server, WithValidation)

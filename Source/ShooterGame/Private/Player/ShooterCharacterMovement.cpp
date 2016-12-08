@@ -19,16 +19,18 @@ float UShooterCharacterMovement::GetMaxSpeed() const
 	const AShooterCharacter* ShooterCharacterOwner = Cast<AShooterCharacter>(PawnOwner);
 	if (ShooterCharacterOwner)
 	{
-		if (ShooterCharacterOwner->IsTargeting())
-		{
-			MaxSpeed *= ShooterCharacterOwner->GetTargetingSpeedModifier();
-		}else if (ShooterCharacterOwner->IsRunning())
+		if (ShooterCharacterOwner->IsCrouching()) {
+			MaxSpeed *= ShooterCharacterOwner->GetCrouchSpeedModifier();
+		}
+		else if (ShooterCharacterOwner->IsRunning())
 		{
 			MaxSpeed *= ShooterCharacterOwner->GetRunningSpeedModifier();
 		}
-		else if (ShooterCharacterOwner->IsCrouching()) {
-			MaxSpeed *= ShooterCharacterOwner->GetCrouchSpeedModifier();
-		}else {
+		else if (ShooterCharacterOwner->IsTargeting())
+		{
+			MaxSpeed *= ShooterCharacterOwner->GetTargetingSpeedModifier();
+		}
+		else {
 			MaxSpeed *= ShooterCharacterOwner->GetWalkSpeedModifier();
 		}
 	}

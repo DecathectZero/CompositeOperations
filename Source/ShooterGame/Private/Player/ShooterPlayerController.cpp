@@ -88,6 +88,8 @@ void AShooterPlayerController::PostInitializeComponents()
 void AShooterPlayerController::BeginPlay()
 {
 	Super::BeginPlay();	
+	PlayerCameraManager->ViewPitchMax = 70.0f;
+	PlayerCameraManager->ViewPitchMin = -70.0f;
 }
 
 void AShooterPlayerController::TickActor(float DeltaTime, enum ELevelTick TickType, FActorTickFunction& ThisTickFunction)
